@@ -22,7 +22,33 @@ namespace FilterLists.Services.FilterList
             await DbContext.FilterLists.OrderBy(l => l.Name).ProjectTo<ListSummaryDto>(MapConfig).ToListAsync();
 
         public async Task<IEnumerable<ListIndexRecord>> GetIndexAsync() =>
-            await DbContext.FilterLists.OrderBy(l => l.Name).ProjectTo<ListIndexRecord>(MapConfig).ToListAsync();
+            await DbContext.FilterLists
+                           .OrderBy(l => l.Name)
+                           .Select(l => new ListIndexRecord
+                           {
+                               Id = (int)l.Id,
+                               LanguageIds = l.FilterListLanguages.Select(ll => (int)ll.LanguageId).ToList(),
+                               Name = l.Name,
+                               RuleCount = l.Id == 1000 //l.Snapshots.Any(s => s.WasSuccessful)
+                                   ? l.Snapshots
+                                      .Where(s => s.WasSuccessful)
+                                      .OrderByDescending(s => s.CreatedDateUtc)
+                                      .FirstOrDefault()
+                                      .SnapshotRules
+                                      .Count
+                                   : (int?)null,
+                               SyntaxId = (int)l.SyntaxId,
+                               TagIds = l.FilterListTags.Select(lt => (int)lt.TagId).ToList(),
+                               UpdatedDate = l.Snapshots.Count(s => s.WasSuccessful && s.WasUpdated) >= 2
+                                   ? l.Snapshots.Where(s => s.WasSuccessful && s.WasUpdated)
+                                      .Select(s => s.CreatedDateUtc)
+                                      .OrderByDescending(c => c)
+                                      .FirstOrDefault()
+                                   : null,
+                               ViewUrl = l.ViewUrl,
+                               ViewUrlMirrors = new List<string> {l.ViewUrlMirror1, l.ViewUrlMirror2}
+                           })
+                           .ToListAsync();
 
         public async Task<ListDetailsDto> GetDetailsAsync(uint id) =>
             await DbContext.FilterLists.ProjectTo<ListDetailsDto>(MapConfig)
