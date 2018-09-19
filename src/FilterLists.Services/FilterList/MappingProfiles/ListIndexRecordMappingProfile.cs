@@ -13,6 +13,15 @@ namespace FilterLists.Services.FilterList.MappingProfiles
             CreateMap<Data.Entities.FilterList, ListIndexRecord>()
                 .ForMember(r => r.LanguageIds,
                     o => o.MapFrom(l => l.FilterListLanguages.Select(ll => (int)ll.LanguageId)))
+                .ForMember(r => r.RuleCount,
+                    o => o.MapFrom(l => l.Snapshots != null && l.Snapshots.Any(s => s.WasSuccessful)
+                        ? l.Snapshots
+                           .Where(s => s.WasSuccessful)
+                           .OrderByDescending(s => s.CreatedDateUtc)
+                           .First()
+                           .SnapshotRules
+                           .Count
+                        : (int?)null))
                 .ForMember(r => r.SyntaxId,
                     o => o.MapFrom(l => (int)l.SyntaxId))
                 .ForMember(r => r.TagIds,
