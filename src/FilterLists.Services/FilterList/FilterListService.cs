@@ -24,26 +24,27 @@ namespace FilterLists.Services.FilterList
         public async Task<IEnumerable<ListIndexRecord>> GetIndexAsync() =>
             await DbContext.FilterLists
                            .OrderBy(l => l.Name)
-                           .Select(l => new ListIndexRecord
-                           {
-                               Id = (int)l.Id,
-                               LanguageIds = l.FilterListLanguages.Select(ll => (int)ll.LanguageId).ToList(),
-                               Name = l.Name,
-                               RuleCount = DbContext.Snapshots
-                                                    .Where(s => s.WasSuccessful && s.FilterList == l)
-                                                    .Select(s => (int?)s.SnapshotRules.Count)
-                                                    .FirstOrDefault(),
-                               SyntaxId = (int)l.SyntaxId,
-                               TagIds = l.FilterListTags.Select(lt => (int)lt.TagId).ToList(),
-                               UpdatedDate = l.Snapshots.Count(s => s.WasSuccessful && s.WasUpdated) >= 2
-                                   ? l.Snapshots.Where(s => s.WasSuccessful && s.WasUpdated)
-                                      .Select(s => s.CreatedDateUtc)
-                                      .OrderByDescending(c => c)
-                                      .FirstOrDefault()
-                                   : null,
-                               ViewUrl = l.ViewUrl,
-                               ViewUrlMirrors = new List<string> {l.ViewUrlMirror1, l.ViewUrlMirror2}
-                           })
+                           .ProjectTo<ListIndexRecord>(MapConfig)
+                           //.Select(l => new ListIndexRecord
+                           //{
+                           //    Id = (int)l.Id,
+                           //    LanguageIds = l.FilterListLanguages.Select(ll => (int)ll.LanguageId).ToList(),
+                           //    Name = l.Name,
+                           //    RuleCount = DbContext.Snapshots
+                           //                         .Where(s => s.WasSuccessful && s.FilterList == l)
+                           //                         .Select(s => (int?)s.SnapshotRules.Count)
+                           //                         .FirstOrDefault(),
+                           //    SyntaxId = (int)l.SyntaxId,
+                           //    TagIds = l.FilterListTags.Select(lt => (int)lt.TagId).ToList(),
+                           //    UpdatedDate = l.Snapshots.Count(s => s.WasSuccessful && s.WasUpdated) >= 2
+                           //        ? l.Snapshots.Where(s => s.WasSuccessful && s.WasUpdated)
+                           //           .Select(s => s.CreatedDateUtc)
+                           //           .OrderByDescending(c => c)
+                           //           .FirstOrDefault()
+                           //        : null,
+                           //    ViewUrl = l.ViewUrl,
+                           //    ViewUrlMirrors = new List<string> {l.ViewUrlMirror1, l.ViewUrlMirror2}
+                           //})
                            .ToListAsync();
 
         public async Task<ListDetailsDto> GetDetailsAsync(uint id) =>
