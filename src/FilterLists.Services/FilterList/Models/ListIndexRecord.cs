@@ -9,6 +9,7 @@ namespace FilterLists.Services.FilterList.Models
     {
         public int Id { get; set; }
         public List<int> LanguageIds { get; set; }
+        public List<int> MaintainerIds { get; set; }
         public string Name { get; set; }
         public int? RuleCount { get; set; }
         public int? SyntaxId { get; set; }
