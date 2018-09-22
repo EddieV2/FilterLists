@@ -3,8 +3,6 @@ import { ISoftwareDto, ILanguageDto, IListIndexDto } from "../../interfaces";
 import ReactTable from "react-table"
 import "react-table/react-table.css"
 import "./listsTable.css";
-import { SoftwareIcon } from "../softwareIcon";
-import { getContrast } from "../../../../utils";
 import * as moment from "moment";
 import { DetailsExpander } from "../../components";
 
@@ -91,12 +89,12 @@ export const ListsTable = (props: IProps) => {
                    //},
                    {
                        Header: "Languages",
-                       accessor: "languages",
+                       accessor: "languageIds",
                        filterable: true,
                        filterMethod: (f: any, r: any) =>
                            f.value === "any" ||
                            (r[f.id]
-                                ? r[f.id].map((x: any) => x).includes(f.value)
+                                ? r[f.id].join(",").split(",").includes(f.value)
                                 : false),
                        Filter: ({ filter, onChange }) =>
                            <select
@@ -112,11 +110,11 @@ export const ListsTable = (props: IProps) => {
                        sortable: false,
                        Cell: (c: any) => c.value
                                          ? <div className="fl-tag-container">
-                                               {c.value.map((e: ILanguageDto, i: number) =>
+                                               {c.value.map((e: number, i: number) =>
                                                    <span className="badge badge-secondary"
-                                                         title={e.name}
+                                                         title={props.languages.filter(l => l.id === e)[0].name}
                                                          key={i}>
-                                                       {e.iso6391}
+                                                       {props.languages.filter(l => l.id === e)[0].iso6391}
                                                    </span>)}
                                            </div>
                                          : null,
@@ -131,12 +129,19 @@ export const ListsTable = (props: IProps) => {
                        Header: "Updated",
                        accessor: "updatedDate",
                        filterable: false,
-                       filterMethod: (f: any, r: any) => r[f.id].includes(f.value),
                        sortMethod: (a: any, b: any) =>
-                           moment(a).isValid() ? (moment(b).isValid() ? (moment(a).isBefore(b) ? -1 : 1) : 1) : -1,
+                           moment(a).isValid()
+                           ? (moment(b).isValid()
+                                  ? (moment(a).isBefore(b)
+                                         ? -1
+                                         : 1)
+                                  : 1)
+                           : -1,
                        Cell: (c: any) =>
                            <div>
-                               {moment(c.value).isValid() ? moment(c.value).format("l") : "N/A"}
+                               {moment(c.value).isValid()
+                                    ? moment(c.value).format("l")
+                                    : "N/A"}
                            </div>,
                        style: { whiteSpace: "inherit" },
                        width: 100,
