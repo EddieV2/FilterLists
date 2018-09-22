@@ -3,6 +3,7 @@ import { ISoftwareDto, ILanguageDto, IListIndexDto } from "../../interfaces";
 import ReactTable from "react-table"
 import "react-table/react-table.css"
 import "./listsTable.css";
+import { SoftwareIcon } from "../softwareIcon";
 import * as moment from "moment";
 import { DetailsExpander } from "../../components";
 
@@ -35,31 +36,39 @@ export const ListsTable = (props: IProps) => {
                        sortMethod: (a: any, b: any) => a.toUpperCase() > b.toUpperCase() ? 1 : -1,
                        Cell: (c: any) => <h2 className="mb-0">{c.value}</h2>
                    },
-                   //{
-                   //    Header: "Software",
-                   //    accessor: "softwareIds",
-                   //    filterable: true,
-                   //    filterMethod: (f: any, r: any) =>
-                   //        f.value === "any" || r[f.id].join(",").split(",").includes(f.value),
-                   //    Filter: ({ filter, onChange }) =>
-                   //        <select
-                   //            onChange={(event: any) => onChange(event.target.value)}
-                   //            style={{ width: "100%" }}
-                   //            value={filter ? filter.value : "any"}>
-                   //            <option value="any">Any</option>
-                   //            {props.software.map(
-                   //                (s: ISoftwareDto, i: number) => <option value={s.id} key={i}>{s.name}</option>)}
-                   //        </select>,
-                   //    sortable: false,
-                   //    Cell: (c: any) => c.value
-                   //                      ? c.value.map((s: number, i: number) => <SoftwareIcon id={s} key={i}/>)
-                   //                      : null,
-                   //    width: 155,
-                   //    headerClassName: "d-none d-md-block",
-                   //    className: "d-none d-md-block",
-                   //    show: props.columnVisibility.filter(
-                   //        (c: IColumnVisibility) => { return c.column === "Software"; })[0].visible
-                   //},
+                   {
+                       Header: "Software",
+                       accessor: "syntaxId",
+                       filterable: true,
+                       filterMethod: (f: any, r: any) =>
+                           f.value === "any" ||
+                           (r[f.id]
+                               ? props.software.filter(s => s.id.includes(r[f.id])).includes(f.value)
+                                : false),
+                       Filter: ({ filter, onChange }) =>
+                           <select
+                               onChange={(event: any) => onChange(event.target.value)}
+                               style={{ width: "100%" }}
+                               value={filter ? filter.value : "any"}>
+                               <option value="any">Any</option>
+                               {props.software
+                                    ? props.software.map((s: ISoftwareDto, i: number) =>
+                                        <option value={s.id} key={i}>{s.name}</option>)
+                                    : null
+                               }
+                           </select>,
+                       sortable: false,
+                       Cell: (c: any) => c.value
+                                         ? props.software.filter(s => s.syntaxIds.indexOf(c.value) !== 0).map(
+                                             (s: ISoftwareDto, i: number) =>
+                                             <SoftwareIcon id={s.id} key={i}/>)
+                                         : null,
+                       width: 155,
+                       headerClassName: "d-none d-md-block",
+                       className: "d-none d-md-block",
+                       show: props.columnVisibility.filter(
+                           (c: IColumnVisibility) => { return c.column === "Software"; })[0].visible
+                   },
                    //{
                    //    Header: "Tags",
                    //    accessor: "tags",
@@ -128,7 +137,6 @@ export const ListsTable = (props: IProps) => {
                    {
                        Header: "Updated",
                        accessor: "updatedDate",
-                       filterable: false,
                        sortMethod: (a: any, b: any) =>
                            moment(a).isValid()
                            ? (moment(b).isValid()
