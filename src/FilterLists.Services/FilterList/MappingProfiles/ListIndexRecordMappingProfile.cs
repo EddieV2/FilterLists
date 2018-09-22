@@ -44,6 +44,10 @@ namespace FilterLists.Services.FilterList.MappingProfiles
                             : null))
                 .ForMember(r => r.ViewUrlMirrors,
                     o => o.MapFrom(l =>
-                        new List<string> {l.ViewUrlMirror1, l.ViewUrlMirror2}));
+                        l.ViewUrlMirror1 != null
+                            ? l.ViewUrlMirror2 != null
+                                ? new List<string> {l.ViewUrlMirror1, l.ViewUrlMirror2}
+                                : new List<string> {l.ViewUrlMirror1}
+                            : null));
     }
 }
