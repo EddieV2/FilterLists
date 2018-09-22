@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IListDto, ISoftwareDto, ILanguageDto } from "./interfaces";
+import { ISoftwareDto, ILanguageDto, IListIndexDto } from "./interfaces";
 import { Tagline, ListsTable, IColumnVisibility } from "./components";
 
 const columnVisibilityDefaults = [
@@ -11,7 +11,7 @@ const columnVisibilityDefaults = [
 
 interface IProps {
     languages: ILanguageDto[];
-    lists: IListDto[];
+    lists: IListIndexDto[];
     ruleCount: number;
     software: ISoftwareDto[];
 }

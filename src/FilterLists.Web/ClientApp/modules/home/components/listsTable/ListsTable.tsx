@@ -1,5 +1,5 @@
 import * as React from "react";
-import { IListDto, ISoftwareDto, ILanguageDto } from "../../interfaces";
+import { ISoftwareDto, ILanguageDto, IListIndexDto } from "../../interfaces";
 import ReactTable from "react-table"
 import "react-table/react-table.css"
 import "./listsTable.css";
@@ -15,7 +15,7 @@ export interface IColumnVisibility {
 
 interface IProps {
     languages: ILanguageDto[];
-    lists: IListDto[];
+    lists: IListIndexDto[];
     software: ISoftwareDto[];
     columnVisibility: IColumnVisibility[];
     pageSize: number;
@@ -37,58 +37,58 @@ export const ListsTable = (props: IProps) => {
                        sortMethod: (a: any, b: any) => a.toUpperCase() > b.toUpperCase() ? 1 : -1,
                        Cell: (c: any) => <h2 className="mb-0">{c.value}</h2>
                    },
-                   {
-                       Header: "Software",
-                       accessor: "softwareIds",
-                       filterable: true,
-                       filterMethod: (f: any, r: any) =>
-                           f.value === "any" || r[f.id].join(",").split(",").includes(f.value),
-                       Filter: ({ filter, onChange }) =>
-                           <select
-                               onChange={(event: any) => onChange(event.target.value)}
-                               style={{ width: "100%" }}
-                               value={filter ? filter.value : "any"}>
-                               <option value="any">Any</option>
-                               {props.software.map(
-                                   (s: ISoftwareDto, i: number) => <option value={s.id} key={i}>{s.name}</option>)}
-                           </select>,
-                       sortable: false,
-                       Cell: (c: any) => c.value
-                                         ? c.value.map((s: number, i: number) => <SoftwareIcon id={s} key={i}/>)
-                                         : null,
-                       width: 155,
-                       headerClassName: "d-none d-md-block",
-                       className: "d-none d-md-block",
-                       show: props.columnVisibility.filter(
-                           (c: IColumnVisibility) => { return c.column === "Software"; })[0].visible
-                   },
-                   {
-                       Header: "Tags",
-                       accessor: "tags",
-                       filterable: true,
-                       filterMethod: (f: any, r: any) =>
-                           r[f.id].map((e: any) => e.name).join().toUpperCase().includes(f.value.toUpperCase()),
-                       sortable: false,
-                       Cell: (c: any) => c.value
-                                         ? <div className="fl-tag-container">
-                                               {c.value.map((e: any, i: number) =>
-                                                   <span className="badge"
-                                                         style={{
-                                                             backgroundColor: `#${e.colorHex}`,
-                                                             color: getContrast(`${e.colorHex}`)
-                                                         }}
-                                                         title={e.description}
-                                                         key={i}>
-                                                       {e.name}
-                                                   </span>)}
-                                           </div>
-                                         : null,
-                       width: 215,
-                       headerClassName: "d-none d-md-block",
-                       className: "d-none d-md-block",
-                       show: props.columnVisibility.filter(
-                           (c: IColumnVisibility) => { return c.column === "Tags"; })[0].visible
-                   },
+                   //{
+                   //    Header: "Software",
+                   //    accessor: "softwareIds",
+                   //    filterable: true,
+                   //    filterMethod: (f: any, r: any) =>
+                   //        f.value === "any" || r[f.id].join(",").split(",").includes(f.value),
+                   //    Filter: ({ filter, onChange }) =>
+                   //        <select
+                   //            onChange={(event: any) => onChange(event.target.value)}
+                   //            style={{ width: "100%" }}
+                   //            value={filter ? filter.value : "any"}>
+                   //            <option value="any">Any</option>
+                   //            {props.software.map(
+                   //                (s: ISoftwareDto, i: number) => <option value={s.id} key={i}>{s.name}</option>)}
+                   //        </select>,
+                   //    sortable: false,
+                   //    Cell: (c: any) => c.value
+                   //                      ? c.value.map((s: number, i: number) => <SoftwareIcon id={s} key={i}/>)
+                   //                      : null,
+                   //    width: 155,
+                   //    headerClassName: "d-none d-md-block",
+                   //    className: "d-none d-md-block",
+                   //    show: props.columnVisibility.filter(
+                   //        (c: IColumnVisibility) => { return c.column === "Software"; })[0].visible
+                   //},
+                   //{
+                   //    Header: "Tags",
+                   //    accessor: "tags",
+                   //    filterable: true,
+                   //    filterMethod: (f: any, r: any) =>
+                   //        r[f.id].map((e: any) => e.name).join().toUpperCase().includes(f.value.toUpperCase()),
+                   //    sortable: false,
+                   //    Cell: (c: any) => c.value
+                   //                      ? <div className="fl-tag-container">
+                   //                            {c.value.map((e: any, i: number) =>
+                   //                                <span className="badge"
+                   //                                      style={{
+                   //                                          backgroundColor: `#${e.colorHex}`,
+                   //                                          color: getContrast(`${e.colorHex}`)
+                   //                                      }}
+                   //                                      title={e.description}
+                   //                                      key={i}>
+                   //                                    {e.name}
+                   //                                </span>)}
+                   //                        </div>
+                   //                      : null,
+                   //    width: 215,
+                   //    headerClassName: "d-none d-md-block",
+                   //    className: "d-none d-md-block",
+                   //    show: props.columnVisibility.filter(
+                   //        (c: IColumnVisibility) => { return c.column === "Tags"; })[0].visible
+                   //},
                    {
                        Header: "Languages",
                        accessor: "languages",
@@ -96,7 +96,7 @@ export const ListsTable = (props: IProps) => {
                        filterMethod: (f: any, r: any) =>
                            f.value === "any" ||
                            (r[f.id]
-                                ? r[f.id].map((x: any) => x.iso6391).includes(f.value)
+                                ? r[f.id].map((x: any) => x).includes(f.value)
                                 : false),
                        Filter: ({ filter, onChange }) =>
                            <select
@@ -106,7 +106,7 @@ export const ListsTable = (props: IProps) => {
                                <option value="any">Any</option>
                                {props.languages
                                     ? props.languages.map((l: ILanguageDto, i: number) =>
-                                        <option value={l.iso6391} key={i}>{l.name}</option>)
+                                        <option value={l.id} key={i}>{l.name}</option>)
                                     : null}
                            </select>,
                        sortable: false,

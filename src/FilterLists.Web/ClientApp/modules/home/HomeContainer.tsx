@@ -1,12 +1,12 @@
 import * as React from "react";
 import "isomorphic-fetch";
-import { ILanguageDto, IListDto, ISoftwareDto } from "./interfaces";
+import { ILanguageDto, ISoftwareDto, IListIndexDto } from "./interfaces";
 import "../../utils/loader.css";
 import { Home } from "./Home";
 
 interface IState {
     languages: ILanguageDto[];
-    lists: IListDto[];
+    lists : IListIndexDto[];
     ruleCount: number;
     software: ISoftwareDto[];
 }
@@ -23,8 +23,8 @@ export class HomeContainer extends React.Component<{}, IState> {
     }
 
     componentDidMount() {
-        fetch("https://filterlists.com/api/v1/lists")
-            .then(r => r.json() as Promise<IListDto[]>)
+        fetch("https://filterlists.com/api/v1/lists/alpha")
+            .then(r => r.json() as Promise<IListIndexDto[]>)
             .then(d => {
                 this.setState({
                     lists: d
