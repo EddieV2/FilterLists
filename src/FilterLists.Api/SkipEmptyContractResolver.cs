@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Reflection;
+using Humanizer;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -12,6 +13,7 @@ namespace FilterLists.Api
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);
+            property.PropertyName = property.PropertyName.Camelize();
             var isDefaultValueIgnored =
                 ((property.DefaultValueHandling ?? DefaultValueHandling.Ignore) & DefaultValueHandling.Ignore) != 0;
             if (!isDefaultValueIgnored || typeof(string).IsAssignableFrom(property.PropertyType) ||
