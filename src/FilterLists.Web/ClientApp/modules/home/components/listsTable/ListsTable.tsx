@@ -4,13 +4,14 @@ import ReactTable from "react-table"
 import "react-table/react-table.css"
 import "./listsTable.css";
 import { SoftwareIcon } from "../softwareIcon";
+import { getContrast } from "../../../../utils";
 import * as moment from "moment";
 import { DetailsExpander } from "../../components";
 
 export interface IColumnVisibility {
     column: string;
     visible: boolean;
-}
+};
 
 interface IProps {
     languages: ILanguageDto[];
@@ -18,7 +19,7 @@ interface IProps {
     software: ISoftwareDto[];
     columnVisibility: IColumnVisibility[];
     pageSize: number;
-}
+};
 
 export const ListsTable = (props: IProps) => {
     return <ReactTable
@@ -29,115 +30,10 @@ export const ListsTable = (props: IProps) => {
                columns={[
                    Name,
                    Software(props),
-                   //{
-                   //    Header: "Tags",
-                   //    accessor: "tags",
-                   //    filterable: true,
-                   //    filterMethod: (f: any, r: any) =>
-                   //        r[f.id].map((e: any) => e.name).join().toUpperCase().includes(f.value.toUpperCase()),
-                   //    sortable: false,
-                   //    Cell: (c: any) => c.value
-                   //                      ? <div className="fl-tag-container">
-                   //                            {c.value.map((e: any, i: number) =>
-                   //                                <span className="badge"
-                   //                                      style={{
-                   //                                          backgroundColor: `#${e.colorHex}`,
-                   //                                          color: getContrast(`${e.colorHex}`)
-                   //                                      }}
-                   //                                      title={e.description}
-                   //                                      key={i}>
-                   //                                    {e.name}
-                   //                                </span>)}
-                   //                        </div>
-                   //                      : null,
-                   //    width: 215,
-                   //    headerClassName: "d-none d-md-block",
-                   //    className: "d-none d-md-block",
-                   //    show: props.columnVisibility.filter(
-                   //        (c: IColumnVisibility) => { return c.column === "Tags"; })[0].visible
-                   //},
-                   {
-                       Header: "Languages",
-                       accessor: "languageIds",
-                       filterable: true,
-                       filterMethod: (f: any, r: any) =>
-                           f.value === "any" ||
-                           (r[f.id]
-                                ? r[f.id].join(",").split(",").includes(f.value)
-                                : false),
-                       Filter: ({ filter, onChange }) =>
-                           <select
-                               onChange={(event: any) => onChange(event.target.value)}
-                               style={{ width: "100%" }}
-                               value={filter ? filter.value : "any"}>
-                               <option value="any">Any</option>
-                               {props.languages
-                                    ? props.languages.map((l: ILanguageDto, i: number) =>
-                                        <option value={l.id} key={i}>{l.name}</option>)
-                                    : null}
-                           </select>,
-                       sortable: false,
-                       Cell: (c: any) => c.value
-                                         ? <div className="fl-tag-container">
-                                               {c.value.map((e: number, i: number) =>
-                                                   <span className="badge badge-secondary"
-                                                         title={props.languages.filter(l => l.id === e)[0].name}
-                                                         key={i}>
-                                                       {props.languages.filter(l => l.id === e)[0].iso6391}
-                                                   </span>)}
-                                           </div>
-                                         : null,
-                       style: { whiteSpace: "inherit" },
-                       width: 95,
-                       headerClassName: "d-none d-md-block",
-                       className: "d-none d-md-block",
-                       show: props.columnVisibility.filter(
-                           (c: IColumnVisibility) => { return c.column === "Languages"; })[0].visible
-                   },
-                   {
-                       Header: "Updated",
-                       accessor: "updatedDate",
-                       sortMethod: (a: any, b: any) =>
-                           moment(a).isValid()
-                           ? (moment(b).isValid()
-                                  ? (moment(a).isBefore(b)
-                                         ? -1
-                                         : 1)
-                                  : 1)
-                           : -1,
-                       Cell: (c: any) =>
-                           <div>
-                               {moment(c.value).isValid()
-                                    ? moment(c.value).format("l")
-                                    : "N/A"}
-                           </div>,
-                       style: { whiteSpace: "inherit" },
-                       width: 100,
-                       headerClassName: "d-none d-md-block",
-                       className: "d-none d-md-block",
-                       show: props.columnVisibility.filter(
-                           (c: IColumnVisibility) => { return c.column === "Updated Date"; })[0].visible
-                   },
-                   {
-                       Header: "Details",
-                       accessor: "id",
-                       sortable: false,
-                       expander: true,
-                       Expander: ({ isExpanded, row }) =>
-                           <div>
-                               {isExpanded
-                                    ? <button className="btn btn-primary btn-block active"
-                                              title={`Collapse details about ${row.name}.`}>
-                                          Details
-                                      </button>
-                                    : <button className="btn btn-primary btn-block"
-                                              title={`Learn more about ${row.name}.`}>
-                                          Details
-                                      </button>}
-                           </div>,
-                       style: { textAlign: "center" },
-                       width: 90
-                   }
+                   Tags(props),
+                   Languages(props),
+                   UpdatedDate(props),
+                   DetailsButton
                ]}
                SubComponent={(r: any) => <DetailsExpander listId={r.original.id}/>}
                className="-striped -highlight"/>;
@@ -160,7 +56,7 @@ const Software = (props: any) => {
         filterMethod: (f: any, r: any) =>
             f.value === "any" ||
             (r[f.id]
-                 ? props.software.filter(s => s.id.includes(r[f.id])).includes(f.value)
+                 ? props.software.filter((s: any) => s.id.includes(r[f.id])).includes(f.value)
                  : false),
         Filter: ({ filter, onChange }: any) =>
             <select
@@ -184,4 +80,133 @@ const Software = (props: any) => {
         className: "d-none d-md-block",
         show: props.columnVisibility.filter((c: IColumnVisibility) => { return c.column === "Software"; })[0].visible
     };
+};
+
+const Tags = (props: any) => {
+    return {
+        Header: "Tags",
+        accessor: "tags",
+        filterable: true,
+        filterMethod: (f: any, r: any) =>
+            r[f.id].map((e: any) => e.name).join().toUpperCase().includes(f.value.toUpperCase()),
+        sortMethod: (a: any, b: any) => a
+                                        ? b
+                                          ? a.length === b.length
+                                            ? a[0].name > b[0].name
+                                              ? -1
+                                              : 1
+                                            : a.length > b.length
+                                              ? 1
+                                              : -1
+                                          : 1
+                                        : -1,
+        Cell: (c: any) => c.value
+                          ? <div className="fl-tag-container">
+                                {c.value.map((e: any, i: number) =>
+                                    <span className="badge"
+                                          style={{
+                                              backgroundColor: `#${e.colorHex}`,
+                                              color: getContrast(`${e.colorHex}`)
+                                          }}
+                                          title={e.description}
+                                          key={i}>
+                                        {e.name}
+                                    </span>)}
+                            </div>
+                          : null,
+        width: 215,
+        headerClassName: "d-none d-md-block",
+        className: "d-none d-md-block",
+        show: props.columnVisibility.filter(
+            (c: IColumnVisibility) => { return c.column === "Tags"; })[0].visible
+    };
+};
+
+const Languages = (props: any) => {
+    return {
+        Header: "Languages",
+        accessor: "languageIds",
+        filterable: true,
+        filterMethod: (f: any, r: any) =>
+            f.value === "any" ||
+            (r[f.id]
+                 ? r[f.id].join(",").split(",").includes(f.value)
+                 : false),
+        Filter: ({ filter, onChange }: any) =>
+            <select
+                onChange={(event: any) => onChange(event.target.value)}
+                style={{ width: "100%" }}
+                value={filter ? filter.value : "any"}>
+                <option value="any">Any</option>
+                {props.languages
+                     ? props.languages.map((l: ILanguageDto, i: number) =>
+                         <option value={l.id} key={i}>{l.name}</option>)
+                     : null}
+            </select>,
+        sortable: false,
+        Cell: (c: any) => c.value
+                          ? <div className="fl-tag-container">
+                                {c.value.map((e: number, i: number) =>
+                                    <span className="badge badge-secondary"
+                                          title={props.languages.filter((l: any) => l.id === e)[0].name}
+                                          key={i}>
+                                        {props.languages.filter((l: any) => l.id === e)[0].iso6391}
+                                    </span>)}
+                            </div>
+                          : null,
+        style: { whiteSpace: "inherit" },
+        width: 95,
+        headerClassName: "d-none d-md-block",
+        className: "d-none d-md-block",
+        show: props.columnVisibility.filter(
+            (c: IColumnVisibility) => { return c.column === "Languages"; })[0].visible
+    };
+};
+
+const UpdatedDate = (props: any) => {
+    return {
+        Header: "Updated",
+        accessor: "updatedDate",
+        sortMethod: (a: any, b: any) =>
+            moment(a).isValid()
+            ? (moment(b).isValid()
+                   ? (moment(a).isBefore(b)
+                          ? -1
+                          : 1)
+                   : 1)
+            : -1,
+        Cell: (c: any) =>
+            <div>
+                {moment(c.value).isValid()
+                     ? moment(c.value).format("l")
+                     : "N/A"}
+            </div>,
+        style: { whiteSpace: "inherit" },
+        width: 100,
+        headerClassName: "d-none d-md-block",
+        className: "d-none d-md-block",
+        show: props.columnVisibility.filter(
+            (c: IColumnVisibility) => { return c.column === "Updated Date"; })[0].visible
+    };
+};
+
+const DetailsButton = {
+    Header: "Details",
+    accessor: "id",
+    sortable: false,
+    expander: true,
+    Expander: ({ isExpanded, row }: any) =>
+        <div>
+            {isExpanded
+                 ? <button className="btn btn-primary btn-block active"
+                           title={`Collapse details about ${row.name}.`}>
+                       Details
+                   </button>
+                 : <button className="btn btn-primary btn-block"
+                           title={`Learn more about ${row.name}.`}>
+                       Details
+                   </button>}
+        </div>,
+    style: { textAlign: "center" },
+    width: 90
 };
